@@ -1,5 +1,11 @@
 # Important References for the project
 
+## LoRa RFM95 datasheet
+http://www.hoperf.com/upload/rf/RFM95_96_97_98W.pdf
+
+## LoRa RFM95 wiring
+https://www.thethingsnetwork.org/labs/story/build-the-cheapest-possible-node-yourself
+
 ## Library for arduino for LoRa communication
 https://github.com/sandeepmistry/arduino-LoRa
 
