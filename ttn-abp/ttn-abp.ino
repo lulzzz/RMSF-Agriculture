@@ -33,6 +33,8 @@
 #include <hal/hal.h>
 #include <SPI.h>
 
+// ---> SE NAO FUNCIONAR À TOA VER SE AS KEYS TAO CERTAS!!!! <------
+
 // LoRaWAN NwkSKey, network session key
 // This is the default Semtech key, which is used by the early prototype TTN
 // network.
