@@ -60,7 +60,7 @@ static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
-const unsigned TX_INTERVAL = 60;
+const unsigned TX_INTERVAL = 120;
 
 // Pin mapping
 const lmic_pinmap lmic_pins = {
@@ -109,10 +109,11 @@ void onEvent (ev_t ev) {
               Serial.println(F("Received "));
               Serial.println(LMIC.dataLen);
               Serial.println(F(" bytes of payload"));
-              //googled, not working yet
+              //prints data received
+              Serial.println("Decimal data: ");
               for (int i = 0; i < LMIC.dataLen; i++)
                 Serial.print(LMIC.frame[LMIC.dataBeg + i]);
-              Serial.println("recebido");
+              Serial.println("");
             }
             // Schedule next transmission
             os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
