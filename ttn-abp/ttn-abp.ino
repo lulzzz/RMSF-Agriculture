@@ -33,6 +33,12 @@
 #include <hal/hal.h>
 #include <SPI.h>
 
+//#include <LoraEncoder.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "payload.h"
+
 // ---> SE NAO FUNCIONAR À TOA VER SE AS KEYS TAO CERTAS!!!! <------
 
 // LoRaWAN NwkSKey, network session key
@@ -55,7 +61,8 @@ void os_getArtEui (u1_t* buf) { }
 void os_getDevEui (u1_t* buf) { }
 void os_getDevKey (u1_t* buf) { }
 
-static uint8_t mydata[] = "Hello, world!";
+//static uint8_t mydata[] = "Hello, world!";
+byte mydata[6];
 static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
@@ -147,7 +154,9 @@ void do_send(osjob_t* j){
     if (LMIC.opmode & OP_TXRXPEND) {
         Serial.println(F("OP_TXRXPEND, not sending"));
     } else {
+      
         // Prepare upstream data transmission at the next possible time.
+        // se quiser um ack para o uplink por 1 no ultimo arg, i think
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
         Serial.println(F("Packet queued"));
     }
@@ -225,7 +234,10 @@ void setup() {
 
     // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
     LMIC_setDrTxpow(DR_SF7,14);
-
+    readingsToBytes(mydata, 400.00, 10.00, 400.00);
+    Serial.println("data to be sent");
+    for(int k=0; k<6;k++)
+      Serial.println(mydata[k]);
     // Start job
     do_send(&sendjob);
 }
