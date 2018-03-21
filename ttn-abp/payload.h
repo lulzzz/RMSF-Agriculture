@@ -8,14 +8,10 @@
 //arduino.h needed to declare byte type
 #include <Arduino.h>
 
-#define MAX_MOISTURE 500
-#define MAX_HUMIDITY 500
+#define MAX_MOISTURE 950
 
-//to distinguish MAX_xxx when converting to percentage
-#define MOISTURE 1
-#define HUMIDITY 2
 
 void readingsToBytes(byte *data, float humidty, float temp, float moisture);
 
-float toPercentage(float value, int type);
+float toPercentage(float value);
 

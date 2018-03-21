@@ -62,7 +62,8 @@ void os_getDevEui (u1_t* buf) { }
 void os_getDevKey (u1_t* buf) { }
 
 //static uint8_t mydata[] = "Hello, world!";
-byte mydata[6];
+//2 bytes para cada parametro + /0 = {temp, temp, hum, hum, moist, moist, /0}
+byte mydata[7];
 static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
@@ -234,10 +235,10 @@ void setup() {
 
     // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
     LMIC_setDrTxpow(DR_SF7,14);
-    readingsToBytes(mydata, 400.00, 10.00, 400.00);
+    readingsToBytes(mydata, 50.12, 13.25, 350.12);
     Serial.println("data to be sent");
     for(int k=0; k<6;k++)
-      Serial.println(mydata[k]);
+      Serial.println(mydata[k], HEX);
     // Start job
     do_send(&sendjob);
 }
