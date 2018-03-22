@@ -1,0 +1,25 @@
+{
+  "name": "rmsf-agriculture",
+  "version": "1.0.0",
+  "description": "A IoT system to get data from a agriculture field",
+  "main": "connectLora.js",
+  "scripts": {
+    "start": "node connectLora.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rena2henriques/RMSF-Agriculture.git"
+  },
+  "author": "Paulo & Renato",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rena2henriques/RMSF-Agriculture/issues"
+  },
+  "homepage": "https://github.com/rena2henriques/RMSF-Agriculture#readme",
+  "dependencies": {
+    "dotenv": "^5.0.1",
+    "mysql": "^2.15.0",
+    "readline": "^1.3.0",
+    "ttn": "^2.3.1"
+  }
+}
