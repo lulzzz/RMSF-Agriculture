@@ -7,7 +7,7 @@ const dotenv_result = require('dotenv').config();
 
 // throws error if the file isn't found
 if (dotenv_result.error) {
-  throw result.error
+  throw dotenv_result.error
 }
 
 var appID = process.env.TTN_APPID
