@@ -1,4 +1,4 @@
-/*Description: 
+  /*Description: 
  *
  * Functions to convert sensor data to bytes in order to be sent uplink to TTN
  * Functions to convert downlink data of type data, to decimal data
@@ -22,7 +22,7 @@ void readingsToBytes(byte *data, float _humidity, float _temp, float moisture) {
 	int percentMoisture = toPercentage(moisture)*100;
 
 	//clears buffer
-	memset(data, 0, 5);
+	memset(data, 0, 6);
  
   //exemplo: _temp1 = 8000 = 1111101000000
 	data[0] = (byte)temp; //= 01000000 = 64, sacar os 1ºs 8 bits do numero
