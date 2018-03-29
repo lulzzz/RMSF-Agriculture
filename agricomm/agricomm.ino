@@ -8,7 +8,7 @@ data to/from a mobile device using LoRa
 
 #include "DHT.h"
 
-#define DHTPIN 2     // connected to digital pin 2
+#define DHTPIN 9     // connected to digital pin 2
 
 //Sensor type used
 #define DHTTYPE DHT11   // DHT 11

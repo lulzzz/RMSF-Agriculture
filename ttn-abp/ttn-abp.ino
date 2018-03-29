@@ -38,6 +38,17 @@
 #include <string.h>
 
 #include "payload.h"
+#include "sensorHandler.h"
+/*DHT11 VARS*/
+#include "DHT.h"
+
+#define DHTPIN 9     // connected to digital pin 9
+//Sensor type used
+#define DHTTYPE DHT11   // DHT 11
+//constructor
+DHT dht(DHTPIN, DHTTYPE);
+//vars
+float moist, humidity, temp;
 
 // ---> SE NAO FUNCIONAR À TOA VER SE AS KEYS TAO CERTAS!!!! <------
 
@@ -155,10 +166,20 @@ void do_send(osjob_t* j){
     if (LMIC.opmode & OP_TXRXPEND) {
         Serial.println(F("OP_TXRXPEND, not sending"));
     } else {
-      
+        
         // Prepare upstream data transmission at the next possible time.
         // se quiser um ack para o uplink por 1 no ultimo arg, i think
+        getSensorValues(&dht, &humidity, &temp, &moist);
+
+Serial.println("Values to be sent: ");
+  Serial.println(humidity);
+  Serial.println(temp);
+  Serial.println(moist);
+        
+        readingsToBytes(mydata, humidity, temp, moist);
+        
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
+      
         Serial.println(F("Packet queued"));
     }
     // Next TX is scheduled after TX_COMPLETE event.
@@ -167,6 +188,8 @@ void do_send(osjob_t* j){
 void setup() {
     Serial.begin(115200);
     Serial.println(F("Starting"));
+      
+    dht.begin();
 
     #ifdef VCC_ENABLE
     // For Pinoccio Scout boards
@@ -235,10 +258,7 @@ void setup() {
 
     // Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
     LMIC_setDrTxpow(DR_SF7,14);
-    readingsToBytes(mydata, 50.12, 13.25, 350.12);
-    Serial.println("data to be sent");
-    for(int k=0; k<6;k++)
-      Serial.println(mydata[k], HEX);
+
     // Start job
     do_send(&sendjob);
 }
