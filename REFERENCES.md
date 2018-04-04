@@ -8,6 +8,7 @@ https://www.thethingsnetwork.org/labs/story/build-the-cheapest-possible-node-you
 
 ## Library for arduino for LoRa communication
 https://github.com/sandeepmistry/arduino-LoRa
+https://github.com/matthijskooijman/arduino-lmic
 
 ## Datasheet of DHT11 Humidity and Temperature sensor
 http://www.micro4you.com/files/sensor/DHT11.pdf
@@ -26,3 +27,6 @@ https://github.com/CatalinPrata/funcodetuts/tree/master/AndroidTCPClient
 ## SocketIO Android and NodeJS Tutorials
 https://devcenter.heroku.com/articles/node-websockets
 https://socket.io/blog/native-socket-io-and-android/# 
+
+## Plot Library for Android
+http://www.android-graphview.org/
