@@ -75,11 +75,17 @@ void os_getDevKey (u1_t* buf) { }
 //static uint8_t mydata[] = "Hello, world!";
 //2 bytes para cada parametro + /0 = {temp, temp, hum, hum, moist, moist, /0}
 byte mydata[7];
+
 static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
-const unsigned TX_INTERVAL = 60;
+unsigned TX_INTERVAL = 20;
+
+// Variables for handling the different sensors and actuator
+bool pump_state = false;
+byte temperature_thres = 30, humidity_thres = 10, moisture_thres = 10;
+byte interval;
 
 // Pin mapping
 const lmic_pinmap lmic_pins = {
@@ -92,71 +98,130 @@ const lmic_pinmap lmic_pins = {
 void onEvent (ev_t ev) {
     Serial.print(os_getTime());
     Serial.print(": ");
+
+    byte data[3] = "";
+
     switch(ev) {
         case EV_SCAN_TIMEOUT:
-            Serial.println(F("EV_SCAN_TIMEOUT"));
+            //Serial.println(F("EV_SCAN_TIMEOUT"));
             break;
         case EV_BEACON_FOUND:
-            Serial.println(F("EV_BEACON_FOUND"));
+            //Serial.println(F("EV_BEACON_FOUND"));
             break;
         case EV_BEACON_MISSED:
-            Serial.println(F("EV_BEACON_MISSED"));
+            //Serial.println(F("EV_BEACON_MISSED"));
             break;
         case EV_BEACON_TRACKED:
-            Serial.println(F("EV_BEACON_TRACKED"));
+            //Serial.println(F("EV_BEACON_TRACKED"));
             break;
         case EV_JOINING:
-            Serial.println(F("EV_JOINING"));
+            //Serial.println(F("EV_JOINING"));
             break;
         case EV_JOINED:
-            Serial.println(F("EV_JOINED"));
+            //Serial.println(F("EV_JOINED"));
             break;
         case EV_RFU1:
-            Serial.println(F("EV_RFU1"));
+            //Serial.println(F("EV_RFU1"));
             break;
         case EV_JOIN_FAILED:
-            Serial.println(F("EV_JOIN_FAILED"));
+            //Serial.println(F("EV_JOIN_FAILED"));
             break;
         case EV_REJOIN_FAILED:
-            Serial.println(F("EV_REJOIN_FAILED"));
+            //Serial.println(F("EV_REJOIN_FAILED"));
             break;
         case EV_TXCOMPLETE:
             Serial.println(F("EV_TXCOMPLETE (includes waiting for RX windows)"));
             if (LMIC.txrxFlags & TXRX_ACK)
               Serial.println(F("Received ack"));
             if (LMIC.dataLen) {
-              Serial.println(F("Received "));
+              Serial.print(F("Received "));
               Serial.println(LMIC.dataLen);
               Serial.println(F(" bytes of payload"));
               for (int i = 0; i < LMIC.dataLen; i++) {
                 if (LMIC.frame[LMIC.dataBeg + i] < 0x10) {
                   Serial.print(F("0"));
                 }
-                Serial.print(LMIC.frame[LMIC.dataBeg + i], HEX);
+                Serial.println(LMIC.frame[LMIC.dataBeg + i], HEX);
+
+                data[i] = LMIC.frame[LMIC.dataBeg + i];
               }
-              Serial.println();
+
+              if(data[0] == 'p') {
+                  if(data[1] == 255) {
+
+                    // fazer aqui controlo da bomba
+                    if(pump_state == false) {
+                        pump_state = true;
+
+                        // accionar a bomba
+
+                        Serial.println("Pump tur");
+                    }
+
+                  } else if(data[1] == 0) {
+                    Serial.println("Pump is False");
+
+                    // fazer aqui controlo da bomba
+                    if(pump_state == true) {
+                        pump_state = false;
+
+                        // desaccionar a bomba
+
+                    }
+                  }
+              } else if(data[0] == 't') {
+
+                  temperature_thres = data[1];
+
+                  Serial.print("Temperature Threshold: ");
+                  Serial.println(temperature_thres);
+
+              } else if(data[0] == 'm') {
+
+                  moisture_thres = data[1];
+
+                  Serial.print("Moisture Threshold: ");
+                  Serial.println(moisture_thres);
+                  
+              } else if(data[0] == 'h') {
+
+                  humidity_thres = data[1];
+
+                  Serial.print("Humidity Threshold: ");
+                  Serial.println(humidity_thres);
+                  
+              } else if(data[0] == 'i') {
+                  
+                  interval = data[1];
+
+                  Serial.print("Interval Uplink: ");
+                  Serial.println(interval);
+
+                  TX_INTERVAL = interval;
+              }
+
             }
             // Schedule next transmission
             os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
             break;
         case EV_LOST_TSYNC:
-            Serial.println(F("EV_LOST_TSYNC"));
+            //Serial.println(F("EV_LOST_TSYNC"));
             break;
         case EV_RESET:
-            Serial.println(F("EV_RESET"));
+            //Serial.println(F("EV_RESET"));
             break;
         case EV_RXCOMPLETE:
             // data received in ping slot
             Serial.println(F("EV_RXCOMPLETE"));
             break;
         case EV_LINK_DEAD:
-            Serial.println(F("EV_LINK_DEAD"));
+            //Serial.println(F("EV_LINK_DEAD"));
             break;
         case EV_LINK_ALIVE:
-            Serial.println(F("EV_LINK_ALIVE"));
+            //Serial.println(F("EV_LINK_ALIVE"));
             break;
          default:
-            Serial.println(F("Unknown event"));
+            //Serial.println(F("Unknown event"));
             break;
     }
 }
@@ -175,7 +240,10 @@ void do_send(osjob_t* j){
         Serial.println(humidity);
         Serial.println(temp);
         Serial.println(moist);
-        
+
+        //pump = checkTreshholds
+        //if pump == 1 mandar mensagem?? 
+
         readingsToBytes(mydata, humidity, temp, moist);
         
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
@@ -264,5 +332,24 @@ void setup() {
 }
 
 void loop() {
+
+    // checks temperature threshold
+    if(temperature_thres <= dht.readTemperature() || humidity_thres <= dht.readHumidity() || moisture_thres <= analogRead(moistureSensor)) {
+        // start Pump if state not ON
+        if(pump_state == false) {
+            // start pump
+
+        }
+
+        // TODO delete
+        Serial.println("Above a thres"); 
+    } else {
+        // stops Pump if state ON
+        if(pump_state == true) {
+            // stop pump
+
+        }
+    }
+
     os_runloop_once();
 }
