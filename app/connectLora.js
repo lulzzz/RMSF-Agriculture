@@ -3,12 +3,12 @@ var ttn = require('ttn');
 const readline = require('readline');
 const mysql = require('mysql');
 // to get environment variables
-const dotenv_result = require('dotenv').config();
+/*const dotenv_result = require('dotenv').config();
 
 // throws error if the file isn't found
 if (dotenv_result.error) {
   throw dotenv_result.error
-}
+}*/
 
 var appID = process.env.TTN_APPID
 var accessKey = process.env.TTN_ACCESSKEY
