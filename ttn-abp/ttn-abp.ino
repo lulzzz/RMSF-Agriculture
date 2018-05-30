@@ -171,11 +171,12 @@ void do_send(osjob_t* j){
         // se quiser um ack para o uplink por 1 no ultimo arg, i think
         getSensorValues(&dht, &humidity, &temp, &moist);
 
-Serial.println("Values to be sent: ");
-  Serial.println(humidity);
-  Serial.println(temp);
-  Serial.println(moist);
-        
+        Serial.println("Values to be sent: ");
+        Serial.println(humidity);
+        Serial.println(temp);
+        Serial.println(moist);
+        //pump = checkTreshholds
+        //if pump == 1 mandar mensagem?? 
         readingsToBytes(mydata, humidity, temp, moist);
         
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
