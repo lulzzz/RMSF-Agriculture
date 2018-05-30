@@ -23,7 +23,7 @@ void getSensorValues(DHT *dht, float *humidity, float *temp, float *moisture) {
 	(*moisture) = analogRead(moistureSensor);
 	//stores values read
 	(*humidity) = h;
-	(*temp) = t;
+	(*temp) = t; 
   
 	return;
 }

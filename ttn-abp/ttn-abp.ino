@@ -171,10 +171,10 @@ void do_send(osjob_t* j){
         // se quiser um ack para o uplink por 1 no ultimo arg, i think
         getSensorValues(&dht, &humidity, &temp, &moist);
 
-Serial.println("Values to be sent: ");
-  Serial.println(humidity);
-  Serial.println(temp);
-  Serial.println(moist);
+        Serial.println("Values to be sent: ");
+        Serial.println(humidity);
+        Serial.println(temp);
+        Serial.println(moist);
         
         readingsToBytes(mydata, humidity, temp, moist);
         

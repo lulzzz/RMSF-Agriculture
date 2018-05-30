@@ -45,9 +45,9 @@ ttn.data(appID, accessKey)
       console.log("The moisture is: " + payload.payload_fields.moisture)
       console.log(payload.metadata.time.slice(0, 19).replace('T', ' '));
 
-      var sql = "INSERT INTO agricomm (devID, temperature, humidity, moisture, pump, arrived_time) VALUES ('"
-      + payload.dev_id + "', " + payload.payload_fields.temperature + ", " + payload.payload_fields.humidity + ","
-        + payload.payload_fields.moisture + ", false ,'" + payload.metadata.time.slice(0, 19).replace('T', ' ') + "');";
+      var sql = "INSERT INTO agricomm (devID, temperature, humidity, moisture, pump, arrived_time) VALUES ('" +
+        payload.dev_id + "', " + payload.payload_fields.temperature + ", " + payload.payload_fields.humidity + "," +
+        payload.payload_fields.moisture + ", false ,'" + payload.metadata.time.slice(0, 19).replace('T', ' ') + "');";
 
       connection.query(sql, function (err, result) {
         if (err) throw err;
@@ -74,4 +74,3 @@ rl.on('line', function (line) {
     process.exit(0);
   }
 })
-
