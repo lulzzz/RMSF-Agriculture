@@ -50,6 +50,7 @@ DHT dht(DHTPIN, DHTTYPE);
 //vars
 float moist, humidity, temp;
 
+
 // ---> SE NAO FUNCIONAR À TOA VER SE AS KEYS TAO CERTAS!!!! <------
 
 // LoRaWAN NwkSKey, network session key
@@ -81,6 +82,8 @@ static osjob_t sendjob;
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
 unsigned TX_INTERVAL = 20;
+
+int moistSensor = A6;
 
 // Variables for handling the different sensors and actuator
 bool pump_state = false;
@@ -244,7 +247,7 @@ void do_send(osjob_t* j){
         //pump = checkTreshholds
         //if pump == 1 mandar mensagem?? 
 
-        readingsToBytes(mydata, humidity, temp, moist);
+        readingsToBytes(mydata, humidity, temp, moist, pump_state);
         
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
       
@@ -334,7 +337,7 @@ void setup() {
 void loop() {
 
     // checks temperature threshold
-    if(temperature_thres <= dht.readTemperature() || humidity_thres <= dht.readHumidity() || moisture_thres <= analogRead(moistureSensor)) {
+    if(temperature_thres <= dht.readTemperature() || humidity_thres > dht.readHumidity() || moisture_thres > analogRead(moistSensor)) {
         // start Pump if state not ON
         if(pump_state == false) {
             // start pump

@@ -10,13 +10,14 @@
  * decimais para um array de bytes (0 a 255) */
 
 /*falta remendar temperatura negativa, ver como fazem no loraserialization*/
-void readingsToBytes(byte *data, float _humidity, float _temp, float moisture) {
+void readingsToBytes(byte *data, float _humidity, float _temp, float moisture, bool pump) {
 	
 	//multiplies by 100 to get ride of the decimal point
 	//max range value 99.99 -> 9999
 	int temp = _temp*100;
 	int humidity = _humidity*100;
 	int percentMoisture = toPercentage(moisture)*100;
+ 
 
 	//clears buffer
 	memset(data, 0, 6);
@@ -28,6 +29,11 @@ void readingsToBytes(byte *data, float _humidity, float _temp, float moisture) {
 	data[3] = (byte)(humidity >> 8);
 	data[4] = (byte)percentMoisture;
 	data[5] = (byte)(percentMoisture >> 8);
+
+  //MSB bit is 1 pump is ON
+  if(pump) {
+    data[1] = data[1] || 128;
+  }
 	return;
 }
 

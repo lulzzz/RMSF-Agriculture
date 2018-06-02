@@ -10,7 +10,7 @@
 //arduino.h needed to declare byte type
 #include <Arduino.h>
 
-void readingsToBytes(byte *data, float humidty, float temp, float moisture);
+void readingsToBytes(byte *data, float humidty, float temp, float moisture, bool pump);
 
 float toPercentage(float value);
 
