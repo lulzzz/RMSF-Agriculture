@@ -42,6 +42,8 @@
 /*DHT11 VARS*/
 #include "DHT.h"
 
+#define PUMP 7
+
 #define DHTPIN 9     // connected to digital pin 9
 //Sensor type used
 #define DHTTYPE DHT11   // DHT 11
@@ -80,7 +82,7 @@ static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
-unsigned TX_INTERVAL = 20;
+unsigned TX_INTERVAL = 60;
 
 // Variables for handling the different sensors and actuator
 bool pump_state = false;
@@ -166,7 +168,7 @@ void onEvent (ev_t ev) {
                         pump_state = false;
 
                         // desaccionar a bomba
-
+                        
                     }
                   }
               } else if(data[0] == 't') {
@@ -334,7 +336,7 @@ void setup() {
 void loop() {
 
     // checks temperature threshold
-    if(temperature_thres <= dht.readTemperature() || humidity_thres <= dht.readHumidity() || moisture_thres <= analogRead(moistureSensor)) {
+    if(temperature_thres <= dht.readTemperature() || humidity_thres > dht.readHumidity() || moisture_thres > analogRead(moistureSensor)) {
         // start Pump if state not ON
         if(pump_state == false) {
             // start pump
@@ -353,3 +355,4 @@ void loop() {
 
     os_runloop_once();
 }
+
