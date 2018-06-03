@@ -52,6 +52,7 @@ DHT dht(DHTPIN, DHTTYPE);
 //vars
 float moist, humidity, temp;
 
+
 // ---> SE NAO FUNCIONAR À TOA VER SE AS KEYS TAO CERTAS!!!! <------
 
 // LoRaWAN NwkSKey, network session key
@@ -82,11 +83,13 @@ static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
-unsigned TX_INTERVAL = 60;
+unsigned TX_INTERVAL = 30;
+
+int moistSensor = A6;
 
 // Variables for handling the different sensors and actuator
 bool pump_state = false;
-byte temperature_thres = 30, humidity_thres = 10, moisture_thres = 10;
+byte temperature_thres = 30, humidity_thres = 10, moisture_thres = 300;
 byte interval;
 
 // Pin mapping
@@ -105,31 +108,31 @@ void onEvent (ev_t ev) {
 
     switch(ev) {
         case EV_SCAN_TIMEOUT:
-            //Serial.println(F("EV_SCAN_TIMEOUT"));
+            Serial.println(F("EV_SCAN_TIMEOUT"));
             break;
         case EV_BEACON_FOUND:
-            //Serial.println(F("EV_BEACON_FOUND"));
+            Serial.println(F("EV_BEACON_FOUND"));
             break;
         case EV_BEACON_MISSED:
-            //Serial.println(F("EV_BEACON_MISSED"));
+            Serial.println(F("EV_BEACON_MISSED"));
             break;
         case EV_BEACON_TRACKED:
-            //Serial.println(F("EV_BEACON_TRACKED"));
+            Serial.println(F("EV_BEACON_TRACKED"));
             break;
         case EV_JOINING:
-            //Serial.println(F("EV_JOINING"));
+            Serial.println(F("EV_JOINING"));
             break;
         case EV_JOINED:
-            //Serial.println(F("EV_JOINED"));
+            Serial.println(F("EV_JOINED"));
             break;
         case EV_RFU1:
-            //Serial.println(F("EV_RFU1"));
+            Serial.println(F("EV_RFU1"));
             break;
         case EV_JOIN_FAILED:
-            //Serial.println(F("EV_JOIN_FAILED"));
+            Serial.println(F("EV_JOIN_FAILED"));
             break;
         case EV_REJOIN_FAILED:
-            //Serial.println(F("EV_REJOIN_FAILED"));
+            Serial.println(F("EV_REJOIN_FAILED"));
             break;
         case EV_TXCOMPLETE:
             Serial.println(F("EV_TXCOMPLETE (includes waiting for RX windows)"));
@@ -157,7 +160,7 @@ void onEvent (ev_t ev) {
 
                         // accionar a bomba
 
-                        Serial.println("Pump tur");
+                        Serial.println("Pump true");
                     }
 
                   } else if(data[1] == 0) {
@@ -207,23 +210,23 @@ void onEvent (ev_t ev) {
             os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
             break;
         case EV_LOST_TSYNC:
-            //Serial.println(F("EV_LOST_TSYNC"));
+            Serial.println(F("EV_LOST_TSYNC"));
             break;
         case EV_RESET:
-            //Serial.println(F("EV_RESET"));
+            Serial.println(F("EV_RESET"));
             break;
         case EV_RXCOMPLETE:
             // data received in ping slot
             Serial.println(F("EV_RXCOMPLETE"));
             break;
         case EV_LINK_DEAD:
-            //Serial.println(F("EV_LINK_DEAD"));
+            Serial.println(F("EV_LINK_DEAD"));
             break;
         case EV_LINK_ALIVE:
-            //Serial.println(F("EV_LINK_ALIVE"));
+            Serial.println(F("EV_LINK_ALIVE"));
             break;
          default:
-            //Serial.println(F("Unknown event"));
+            Serial.println(F("Unknown event"));
             break;
     }
 }
@@ -242,11 +245,12 @@ void do_send(osjob_t* j){
         Serial.println(humidity);
         Serial.println(temp);
         Serial.println(moist);
+        Serial.println(pump_state);
 
         //pump = checkTreshholds
         //if pump == 1 mandar mensagem?? 
 
-        readingsToBytes(mydata, humidity, temp, moist);
+        readingsToBytes(mydata, humidity, temp, moist, pump_state);
         
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
       
@@ -258,7 +262,9 @@ void do_send(osjob_t* j){
 void setup() {
     Serial.begin(115200);
     Serial.println(F("Starting"));
-      
+
+    pinMode(PUMP, OUTPUT);
+    
     dht.begin();
 
     #ifdef VCC_ENABLE
@@ -336,20 +342,26 @@ void setup() {
 void loop() {
 
     // checks temperature threshold
-    if(temperature_thres <= dht.readTemperature() || humidity_thres > dht.readHumidity() || moisture_thres > analogRead(moistureSensor)) {
+    if(dht.readTemperature() >= temperature_thres || dht.readHumidity() < humidity_thres >|| analogRead(moistSensor) < moisture_thres) {
         // start Pump if state not ON
         if(pump_state == false) {
             // start pump
+            Serial.println("Pump started");
+            digitalWrite(PUMP, HIGH);
 
+            pump_state = true;
         }
 
         // TODO delete
-        Serial.println("Above a thres"); 
+        //Serial.println("Above a thres"); 
     } else {
         // stops Pump if state ON
         if(pump_state == true) {
             // stop pump
+            Serial.println("Pump stopped");
+            digitalWrite(PUMP, LOW);
 
+            pump_state = false;
         }
     }
 
