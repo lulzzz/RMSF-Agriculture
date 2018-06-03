@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Message Logs</title>
+    </head>
+    <body>
+        <h1>Message Log:</h1>
+        <ul id="messages">
+        </ul>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+        <script>
+            var socket = io();
+            socket.on('log_message', function(msg){
+
+                console.log("message: " + msg);
+
+                // append a new message to the page
+                var li = document.createElement("li");
+                var t = document.createTextNode(msg);
+                li.appendChild(t);
+                document.getElementById("messages").appendChild(li);
+            });
+
+            socket.on('db_log', function(msg){
+
+                console.log("message: " + msg);
+
+            });
+
+            socket.on('connect', () => {
+                console.log("New connection");
+            });
+
+            socket.on('error', (msg) => {
+                console.log(msg);
+            });
+
+        </script>
+    </body>
+</html>
